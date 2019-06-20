@@ -32,15 +32,16 @@ def log_mel_energy(inputs: np.ndarray,
                    n_mels=40,
                    freq_min=20,
                    freq_max=8000) -> np.ndarray:
-    """ Log mel filter bank energies """
-    specto = librosa.feature.melspectrogram(inputs,
-                                            sr=sr,
-                                            n_fft=n_fft,
-                                            hop_length=stride,
-                                            n_mels=n_mels,
-                                            power=1,
-                                            fmin=freq_min,
-                                            fmax=freq_max)
+    """ Computes the Log mel filter bank energies of the waveform input"""
+    specto = librosa.feature.melspectrogram(
+        inputs,
+        sr=sr,
+        n_fft=n_fft,
+        hop_length=stride,
+        n_mels=n_mels,
+        power=1,  # 1 for energy, 2 for power
+        fmin=freq_min,
+        fmax=freq_max)
     log_specto = librosa.core.amplitude_to_db(specto, ref=np.max)
 
     # R -> Time x Freq
@@ -54,6 +55,7 @@ def mfcc(data: np.ndarray,
          stride: int = 20,
          window_size: int = 40):
     """
+    computes the mel-frequency cepstral coefficients of the input data
     data - np.float32 ndarray (n,)
     stride - ms
     window_size - ms
@@ -83,6 +85,7 @@ def mfcc(data: np.ndarray,
 
 def background_noise_augment(y_overlay: np.ndarray, dBFS: float,
                              bg_noise: AudioSegment, snr_range) -> np.ndarray:
+    """Augment by overlaying with background noise"""
 
     assert isinstance(y_overlay, np.ndarray)
     assert issubclass(y_overlay.dtype.type, np.floating)
@@ -102,6 +105,7 @@ def background_noise_augment(y_overlay: np.ndarray, dBFS: float,
 
 
 def speed_augment(y_speed: np.ndarray) -> np.ndarray:
+    "Apply speed augmentation"
 
     assert isinstance(y_speed, np.ndarray)
     assert issubclass(y_speed.dtype.type, np.floating)
@@ -116,7 +120,7 @@ def speed_augment(y_speed: np.ndarray) -> np.ndarray:
 
 
 def white_noise_augment(y_noise: np.ndarray) -> np.ndarray:
-
+    """ Apply white noise augmentation to the input data"""
     # dBFS
     assert isinstance(y_noise, np.ndarray)
     assert issubclass(y_noise.dtype.type, np.floating)
@@ -144,12 +148,13 @@ def pitch_augment(y_pitch: np.ndarray,
     return y_pitch
 
 
-def value_augment(y_aug: np.ndarray) -> np.ndarray:
+def value_augment(y_aug: np.ndarray, low=0.5, high=1.1) -> np.ndarray:
+    """ Randomly distort the audio input by multiplying with random coefficients """
 
     assert isinstance(y_aug, np.ndarray)
     assert issubclass(y_aug.dtype.type, np.floating)
 
-    dyn_change = np.random.uniform(low=0.5, high=1.1)
+    dyn_change = np.random.uniform(low=low, high=high)
     y_aug = y_aug * dyn_change
 
     return y_aug
