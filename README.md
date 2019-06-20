@@ -1,4 +1,4 @@
-![](/home/lamar/Documents/workspace/deep learning/projects/AUTK/assets/autk.png)
+![](assets/autk.png)
 # Audio Augmentation Toolkit
 
 A toolkit for augmenting audio data. Provides:
